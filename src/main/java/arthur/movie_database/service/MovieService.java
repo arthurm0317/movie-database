@@ -1,50 +1,45 @@
 package arthur.movie_database.service;
 
-import arthur.movie_database.entities.User;
-import arthur.movie_database.repositories.UserRepository;
+import arthur.movie_database.entities.Movies;
+import arthur.movie_database.repositories.MovieRepository;
 import arthur.movie_database.service.exceptions.DatabaseException;
 import arthur.movie_database.service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class MovieService {
     @Autowired
-    private UserRepository repository;
+    private MovieRepository repository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public List<User> findAll(){
+    public List<Movies> findAll(){
         return repository.findAll();
     }
-    public User findById(Long id){
-        Optional<User> obj = repository.findById(id);
+    public Movies findById(Integer id){
+        Optional<Movies> obj = repository.findById(id);
         return obj.orElseThrow(()-> new ResourceNotFoundException(id));
     }
-    public User insertUser(User obj){
-        obj.setPassword(passwordEncoder.encode(obj.getPassword()));
+    public Movies insertMovie(Movies obj){
         return repository.save(obj);
     }
-    public void deleteUser(Long id){
+    public void deleteMovie(Integer id){
         try {
             if (!repository.existsById(id)) {
-                throw new ResourceNotFoundException("User not found with id " + id);
+                throw new ResourceNotFoundException("Movie not found with id " + id);
             }
             repository.deleteById(id);
         }catch (DataIntegrityViolationException e){
             throw new DatabaseException(e.getMessage());
         }
     }
-    public User updateUser(Long id, User obj){
+    public Movies updateMovie(Integer id, Movies obj){
         try {
-            User entity = repository.getReferenceById(id);
+            Movies entity = repository.getReferenceById(id);
             updateData(entity, obj);
             return repository.save(entity);
         }catch (EntityNotFoundException e){
@@ -53,10 +48,11 @@ public class UserService {
 
     }
 
-    private void updateData(User entity, User obj) {
-        entity.setUsername(obj.getUsername());
-        entity.setEmail(obj.getEmail());
+    private void updateData(Movies entity, Movies obj) {
+        entity.setName(obj.getName());
+        entity.setRelaseYear(obj.getRelaseYear());
+        entity.setDescription(obj.getDescription());
+        entity.setImageUrl(obj.getImageUrl());
     }
-
 
 }

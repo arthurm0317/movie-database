@@ -19,6 +19,7 @@ public class JwtUtils {
     @Value("${projeto.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    //Gerando um token de autenticação e fazendo a assinatura
     public String generateTokenFromUserDetailsImpl(UserDetailsImpl userData){
         return Jwts.builder().setSubject(userData.getUsername())
                 .issuedAt(new Date())
@@ -26,8 +27,13 @@ public class JwtUtils {
                         SignatureAlgorithm.HS512).compact();
     }
 
+
     public Key getSignedKey(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
+
+    public String getUsernameToken(String token){
+        return Jwts.parser().setSigningKey(getSignedKey()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
     public boolean valitadeJwtToken(String authToken){
