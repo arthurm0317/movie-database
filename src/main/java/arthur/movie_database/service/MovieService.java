@@ -50,7 +50,7 @@ public class MovieService {
 
     private void updateData(Movies entity, Movies obj) {
         entity.setName(obj.getName());
-        entity.setRelaseYear(obj.getRelaseYear());
+        entity.setReleaseYear(obj.getReleaseYear());
         entity.setDescription(obj.getDescription());
         entity.setImageUrl(obj.getImageUrl());
     }

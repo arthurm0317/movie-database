@@ -20,6 +20,7 @@ public class User implements Serializable {
     private String username;
     private String email;
     private String image;
+    @JsonIgnore
     private String password;
 
 

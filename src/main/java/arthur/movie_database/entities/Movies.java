@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -16,7 +17,8 @@ public class Movies implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    private Integer relaseYear;
+    private Integer releaseYear;
+    private List<String> genres;
     private String description;
     private String imageUrl;
 
@@ -27,7 +29,7 @@ public class Movies implements Serializable {
     public Movies(Integer id, String name, Integer year, String description, String imageUrl) {
         this.id = id;
         this.name = name;
-        this.relaseYear = year;
+        this.releaseYear = year;
         this.description = description;
         this.imageUrl = imageUrl;
     }
@@ -48,12 +50,12 @@ public class Movies implements Serializable {
         this.name = name;
     }
 
-    public Integer getRelaseYear() {
-        return relaseYear;
+    public Integer getReleaseYear() {
+        return releaseYear;
     }
 
-    public void setRelaseYear(Integer relaseYear) {
-        this.relaseYear = relaseYear;
+    public void setReleaseYear(Integer releaseYear) {
+        this.releaseYear = releaseYear;
     }
 
     public String getDescription() {
@@ -72,15 +74,23 @@ public class Movies implements Serializable {
         this.imageUrl = imageUrl;
     }
 
+    public List<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Movies movies = (Movies) o;
-        return Objects.equals(name, movies.name) && Objects.equals(relaseYear, movies.relaseYear);
+        return Objects.equals(name, movies.name) && Objects.equals(releaseYear, movies.releaseYear);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, relaseYear);
+        return Objects.hash(name, releaseYear);
     }
 }
