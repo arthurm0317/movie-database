@@ -21,6 +21,7 @@ public class Movies implements Serializable {
     private List<String> genres;
     private String description;
     private String imageUrl;
+    private Long tmdbId;
 
     private Movies(){
 
@@ -32,6 +33,14 @@ public class Movies implements Serializable {
         this.releaseYear = year;
         this.description = description;
         this.imageUrl = imageUrl;
+    }
+    public Movies(Integer id, String name, Integer year, String description, String imageUrl, Long tmdbId) {
+        this.id = id;
+        this.name = name;
+        this.releaseYear = year;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.tmdbId = tmdbId;
     }
 
     public Integer getId() {

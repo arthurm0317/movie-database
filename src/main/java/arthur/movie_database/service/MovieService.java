@@ -17,6 +17,9 @@ public class MovieService {
     @Autowired
     private MovieRepository repository;
 
+    @Autowired
+    private TMDbService tmDbService;
+
     public List<Movies> findAll(){
         return repository.findAll();
     }
@@ -45,7 +48,19 @@ public class MovieService {
         }catch (EntityNotFoundException e){
             throw new ResourceNotFoundException("User not found with id " + id);
         }
-
+    }
+    public Movies favoriteMovie(Long tmdbId) {
+        return repository.findByTmdbId(tmdbId)
+                .orElseGet(() -> {
+                    String jsonResponse = tmDbService.buscarFilmePorId(tmdbId);
+                    Movies newMovie = converterJsonParaMovie(jsonResponse);
+                    return repository.save(newMovie);
+                });
+    }
+    private Movies converterJsonParaMovie(String jsonResponse) {
+        // Aqui você faz a conversão do JSON para um objeto Movies
+        // Pode usar ObjectMapper do Jackson, por exemplo
+        return null;
     }
 
     private void updateData(Movies entity, Movies obj) {
@@ -53,6 +68,10 @@ public class MovieService {
         entity.setReleaseYear(obj.getReleaseYear());
         entity.setDescription(obj.getDescription());
         entity.setImageUrl(obj.getImageUrl());
+    }
+
+    public Optional<Movies> findByTmdbId(Long tmdbId) {
+        return repository.findByTmdbId(tmdbId);
     }
 
 }
