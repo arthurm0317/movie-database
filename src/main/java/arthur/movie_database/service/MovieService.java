@@ -1,14 +1,20 @@
 package arthur.movie_database.service;
 
+import arthur.movie_database.entities.MovieGenre;
 import arthur.movie_database.entities.Movies;
 import arthur.movie_database.repositories.MovieRepository;
 import arthur.movie_database.service.exceptions.DatabaseException;
 import arthur.movie_database.service.exceptions.ResourceNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +52,7 @@ public class MovieService {
             updateData(entity, obj);
             return repository.save(entity);
         }catch (EntityNotFoundException e){
-            throw new ResourceNotFoundException("User not found with id " + id);
+            throw new ResourceNotFoundException("Movie not found with id " + id);
         }
     }
     public Movies favoriteMovie(Long tmdbId) {
@@ -57,10 +63,34 @@ public class MovieService {
                     return repository.save(newMovie);
                 });
     }
+    public Optional<Movies> findByTmdbId(Long tmdbId) {
+        return repository.findByTmdbId(tmdbId);
+    }
+
     private Movies converterJsonParaMovie(String jsonResponse) {
-        // Aqui você faz a conversão do JSON para um objeto Movies
-        // Pode usar ObjectMapper do Jackson, por exemplo
-        return null;
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+
+            Long tmdbId = rootNode.get("id").asLong();
+            String name = rootNode.get("title").asText();
+            Integer releaseYear = rootNode.get("release_date").asText().isEmpty() ? null : Integer.parseInt(rootNode.get("release_date").asText().substring(0,4));
+            String description = rootNode.get("overview").asText();
+            List<String> genres = new ArrayList<>();
+            JsonNode genresNode = rootNode.get("genres");
+            if (genresNode != null && genresNode.isArray()) {
+                for (JsonNode genreNode : genresNode) {
+                    int genreId = genreNode.get("id").asInt();
+                    genres.add(MovieGenre.getGenreNameById(genreId));
+                }
+            }
+            String imageUrl = "https://image.tmdb.org/t/p/w500"+rootNode.get("poster_path").asText();
+            return new Movies(name, releaseYear, description, imageUrl, tmdbId);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void updateData(Movies entity, Movies obj) {
@@ -70,8 +100,6 @@ public class MovieService {
         entity.setImageUrl(obj.getImageUrl());
     }
 
-    public Optional<Movies> findByTmdbId(Long tmdbId) {
-        return repository.findByTmdbId(tmdbId);
-    }
+
 
 }

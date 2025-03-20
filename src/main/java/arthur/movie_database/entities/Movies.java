@@ -18,13 +18,25 @@ public class Movies implements Serializable {
     private Integer id;
     private String name;
     private Integer releaseYear;
+    @ElementCollection
     private List<String> genres;
+    @Lob
     private String description;
     private String imageUrl;
+    @Column(unique = true)
     private Long tmdbId;
 
-    private Movies(){
 
+    private Movies() {
+
+    }
+
+    public Movies(String name, Integer year, String description, String imageUrl, Long tmdbId) {
+        this.name = name;
+        this.releaseYear = year;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.tmdbId = tmdbId;
     }
 
     public Movies(Integer id, String name, Integer year, String description, String imageUrl) {
@@ -34,14 +46,8 @@ public class Movies implements Serializable {
         this.description = description;
         this.imageUrl = imageUrl;
     }
-    public Movies(Integer id, String name, Integer year, String description, String imageUrl, Long tmdbId) {
-        this.id = id;
-        this.name = name;
-        this.releaseYear = year;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.tmdbId = tmdbId;
-    }
+
+
 
     public Integer getId() {
         return id;
@@ -93,13 +99,14 @@ public class Movies implements Serializable {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Movies movies = (Movies) o;
-        return Objects.equals(name, movies.name) && Objects.equals(releaseYear, movies.releaseYear);
+        return Objects.equals(tmdbId, movies.tmdbId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, releaseYear);
+        return Objects.hash(tmdbId);
     }
 }

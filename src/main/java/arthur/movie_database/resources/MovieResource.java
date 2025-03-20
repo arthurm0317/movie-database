@@ -2,6 +2,10 @@ package arthur.movie_database.resources;
 import arthur.movie_database.entities.Movies;
 import arthur.movie_database.service.MovieService;
 import arthur.movie_database.service.TMDbService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +36,23 @@ public class MovieResource {
     @GetMapping(value = "/tmdb/{tmdbId}")
     public ResponseEntity<String> findByTmdbId(@PathVariable Long tmdbId) {
         return ResponseEntity.ok().body(tmdbService.buscarFilmePorId(tmdbId));
+    }
+    @PostMapping(value = "/favorite")
+    public ResponseEntity<Movies> favoriteMovie(@RequestParam String title){
+        String jsonResponse = tmdbService.buscarFilmePorTitulo(title);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+            Long tmdbId = rootNode.get("results").get(0).get("id").asLong();
+            Movies obj = movieService.favoriteMovie(tmdbId);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+            return ResponseEntity.created(uri).body(obj);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
     }
     @GetMapping(value = "/popular")
     public ResponseEntity <String> popularMovies(){
